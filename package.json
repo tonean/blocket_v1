@@ -1,0 +1,28 @@
+{
+  "private": true,
+  "name": "reddit-room-design-game",
+  "version": "1.0.0",
+  "description": "A Reddit-based room design game built on Devvit",
+  "type": "module",
+  "scripts": {
+    "build": "devvit upload",
+    "dev": "devvit playtest blocket_test",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "type-check": "tsc --noEmit"
+  },
+  "keywords": ["devvit", "reddit", "game", "design"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@devvit/public-api": "^0.11.0",
+    "@devvit/protos": "^0.11.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "devvit": "^0.12.3",
+    "fast-check": "^3.15.0",
+    "typescript": "^5.8.0",
+    "vitest": "^3.1.0"
+  }
+}
