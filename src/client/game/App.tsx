@@ -36,7 +36,8 @@ const COLORS = ['#FFFFFF', '#FFA500', '#4169E1', '#228B22', '#FF1493', '#8B4513'
 export const App = () => {
     const { postId, username, theme, loading } = useInit();
     const [mode, setMode] = useState<'preview' | 'edit'>('preview');
-    const [currentView, setCurrentView] = useState<'design' | 'gallery' | 'viewing' | 'leaderboard'>('design');
+    const [currentView, setCurrentView] = useState<'design' | 'gallery' | 'viewing' | 'leaderboard' | 'saved'>('design');
+    const [searchQuery, setSearchQuery] = useState('');
     const [placedAssets, setPlacedAssets] = useState<PlacedAsset[]>([]);
     const [selectedAssetId, setSelectedAssetId] = useState<string | null>(null);
     const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
@@ -57,6 +58,7 @@ export const App = () => {
     const [loadingGallery, setLoadingGallery] = useState(false);
     const [viewingDesign, setViewingDesign] = useState<any | null>(null);
     const [userVotes, setUserVotes] = useState<Record<string, boolean>>({});
+    const [savedDesigns, setSavedDesigns] = useState<any[]>([]);
     const canvasRef = useRef<HTMLDivElement>(null);
     const trashRef = useRef<HTMLDivElement>(null);
 
@@ -377,9 +379,58 @@ export const App = () => {
                                 <span style={{ fontFamily: 'monospace', fontSize: isMobile ? '11px' : '14px', color: '#666' }}> - {username || 'Guest'}'s Room</span>
                             </div>
                         ) : currentView === 'gallery' ? (
-                            <span style={{ fontFamily: 'monospace', fontSize: '18px', fontWeight: 'bold', color: '#FFF', marginLeft: '8px' }}>Gallery</span>
+                            <>
+                                <span style={{ fontFamily: 'monospace', fontSize: '18px', fontWeight: 'bold', color: '#FFF', marginLeft: '8px' }}>Gallery</span>
+                                <div style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    backgroundColor: '#2A2A30',
+                                    borderRadius: '20px',
+                                    padding: '8px 14px',
+                                    marginLeft: '24px',
+                                    gap: '8px',
+                                    flex: 1,
+                                }}>
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <circle cx="11" cy="11" r="8" />
+                                        <path d="m21 21-4.35-4.35" />
+                                    </svg>
+                                    <input
+                                        type="text"
+                                        placeholder="Search user..."
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        style={{
+                                            flex: 1,
+                                            background: 'none',
+                                            border: 'none',
+                                            outline: 'none',
+                                            color: '#FFFFFF',
+                                            fontSize: '14px',
+                                            width: '100%',
+                                        }}
+                                    />
+                                    {searchQuery && (
+                                        <button
+                                            onClick={() => setSearchQuery('')}
+                                            style={{
+                                                background: 'none',
+                                                border: 'none',
+                                                color: '#6B7280',
+                                                cursor: 'pointer',
+                                                padding: '0',
+                                                fontSize: '12px',
+                                            }}
+                                        >
+                                            ✕
+                                        </button>
+                                    )}
+                                </div>
+                            </>
                         ) : currentView === 'leaderboard' ? (
                             <span style={{ fontFamily: 'monospace', fontSize: '18px', fontWeight: 'bold', color: '#FFF', marginLeft: '8px' }}>Leaderboard</span>
+                        ) : currentView === 'saved' ? (
+                            <span style={{ fontFamily: 'monospace', fontSize: '18px', fontWeight: 'bold', color: '#FFF', marginLeft: '8px' }}>My Saved Rooms</span>
                         ) : null}
                     </div>
                     {currentView === 'design' && (
@@ -387,22 +438,6 @@ export const App = () => {
                             <button onClick={() => setMode('preview')} style={{ padding: isMobile ? '6px 12px' : '8px 16px', border: 'none', borderRadius: '20px', background: mode === 'preview' ? '#FFF' : 'transparent', cursor: 'pointer', fontWeight: '500', fontSize: isMobile ? '12px' : '14px', boxShadow: mode === 'preview' ? '0 2px 4px rgba(0,0,0,0.1)' : 'none' }}>Preview</button>
                             <button onClick={() => setMode('edit')} style={{ padding: isMobile ? '6px 12px' : '8px 16px', border: 'none', borderRadius: '20px', background: mode === 'edit' ? '#FFF' : 'transparent', cursor: 'pointer', fontWeight: '500', fontSize: isMobile ? '12px' : '14px', boxShadow: mode === 'edit' ? '0 2px 4px rgba(0,0,0,0.1)' : 'none' }}>Edit</button>
                         </div>
-                    )}
-                    {(currentView === 'gallery' || currentView === 'leaderboard') && (
-                        <button
-                            onClick={fetchGallery}
-                            style={{
-                                padding: '8px 16px',
-                                backgroundColor: '#2A2A30',
-                                color: '#FFFFFF',
-                                border: 'none',
-                                borderRadius: '8px',
-                                cursor: 'pointer',
-                                fontSize: '13px',
-                            }}
-                        >
-                            Refresh
-                        </button>
                     )}
                 </header>
             )}
@@ -498,6 +533,29 @@ export const App = () => {
                                 </svg>
                                 Leaderboard
                             </a>
+                            <a style={{
+                                padding: '10px 12px',
+                                borderRadius: '8px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '10px',
+                                color: '#FFFFFF',
+                                fontSize: '14px',
+                                fontWeight: '500',
+                                transition: 'background-color 0.2s',
+                                textDecoration: 'none',
+                                backgroundColor: currentView === 'saved' ? 'rgba(255,255,255,0.15)' : 'transparent',
+                            }}
+                                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)'}
+                                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = currentView === 'saved' ? 'rgba(255,255,255,0.15)' : 'transparent'}
+                                onClick={() => { setCurrentView('saved'); fetchGallery(); setIsMenuOpen(false); }}
+                            >
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+                                </svg>
+                                My Saved Rooms
+                            </a>
                         </nav>
                     </div>
                 </div>
@@ -508,7 +566,7 @@ export const App = () => {
                 /* Gallery View */
                 <main style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '16px', overflow: 'auto', backgroundColor: '#1A1A1F' }}>
 
-                    {/* Loading state */}
+
                     {loadingGallery && (
                         <div style={{ textAlign: 'center', padding: '40px', color: '#9CA3AF' }}>
                             Loading gallery...
@@ -549,112 +607,137 @@ export const App = () => {
                             gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
                             gap: '16px',
                         }}>
-                            {galleryDesigns.map((design, index) => (
-                                <div
-                                    key={design.id || index}
-                                    style={{
-                                        backgroundColor: '#2A2A30',
-                                        borderRadius: '12px',
-                                        overflow: 'hidden',
-                                        cursor: 'pointer',
-                                        transition: 'transform 0.2s, box-shadow 0.2s',
-                                    }}
-                                    onClick={() => viewDesign(design)}
-                                    onMouseEnter={(e) => {
-                                        e.currentTarget.style.transform = 'translateY(-4px)';
-                                        e.currentTarget.style.boxShadow = '0 8px 20px rgba(0,0,0,0.3)';
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        e.currentTarget.style.transform = 'translateY(0)';
-                                        e.currentTarget.style.boxShadow = 'none';
-                                    }}
-                                >
-                                    {/* Thumbnail - shows design background and assets */}
-                                    <div style={{
-                                        width: '100%',
-                                        height: '160px',
-                                        backgroundColor: design.backgroundColor || '#3A3A45',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        position: 'relative',
-                                        overflow: 'hidden',
-                                    }}>
-                                        {/* Room base image */}
-                                        <img
-                                            src="room_1.png"
-                                            alt="Room design"
-                                            style={{ maxWidth: '80%', maxHeight: '80%', objectFit: 'contain' }}
-                                        />
-                                        {/* Render actual assets as mini thumbnails */}
-                                        {design.assets?.map((asset: any, assetIndex: number) => {
-                                            const assetData = ASSETS.find(a => a.id === asset.assetId);
-                                            if (!assetData) return null;
-                                            return (
-                                                <img
-                                                    key={assetIndex}
-                                                    src={assetData.imageUrl}
-                                                    alt="Asset"
-                                                    style={{
-                                                        position: 'absolute',
-                                                        left: `calc(50% + ${asset.xOffset * 0.8}%)`,
-                                                        top: `calc(50% + ${asset.yOffset * 0.8}%)`,
-                                                        transform: `translate(-50%, -50%) rotate(${asset.rotation || 0}deg) scale(${(asset.scale || 1) * 0.4})`,
-                                                        width: '30px',
-                                                        height: '30px',
-                                                        objectFit: 'contain',
-                                                        pointerEvents: 'none',
-                                                    }}
-                                                />
-                                            );
-                                        })}
-                                    </div>
-
-                                    {/* Info */}
-                                    <div style={{ padding: '10px 12px' }}>
-                                        <div style={{
-                                            color: '#FFFFFF',
-                                            fontWeight: '600',
-                                            fontSize: '13px',
-                                            marginBottom: '8px',
+                            {galleryDesigns
+                                .filter(design => !searchQuery || design.username?.toLowerCase().includes(searchQuery.toLowerCase()))
+                                .map((design, index) => (
+                                    <div
+                                        key={design.id || index}
+                                        style={{
+                                            backgroundColor: '#2A2A30',
+                                            borderRadius: '12px',
                                             overflow: 'hidden',
-                                            textOverflow: 'ellipsis',
-                                            whiteSpace: 'nowrap',
-                                            maxWidth: '100%',
+                                            cursor: 'pointer',
+                                            transition: 'transform 0.2s, box-shadow 0.2s',
+                                        }}
+                                        onClick={() => viewDesign(design)}
+                                        onMouseEnter={(e) => {
+                                            e.currentTarget.style.transform = 'translateY(-4px)';
+                                            e.currentTarget.style.boxShadow = '0 8px 20px rgba(0,0,0,0.3)';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.transform = 'translateY(0)';
+                                            e.currentTarget.style.boxShadow = 'none';
+                                        }}
+                                    >
+                                        {/* Thumbnail - shows design background and assets */}
+                                        <div style={{
+                                            width: '100%',
+                                            height: '160px',
+                                            backgroundColor: design.backgroundColor || '#3A3A45',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            position: 'relative',
+                                            overflow: 'hidden',
                                         }}>
-                                            {design.username || 'Anonymous'}
+                                            {/* Room base image */}
+                                            <img
+                                                src="room_1.png"
+                                                alt="Room design"
+                                                style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
+                                            />
+                                            {/* Render actual assets as mini thumbnails */}
+                                            {design.assets?.map((asset: any, assetIndex: number) => {
+                                                const assetData = ASSETS.find(a => a.id === asset.assetId);
+                                                if (!assetData) return null;
+                                                return (
+                                                    <img
+                                                        key={assetIndex}
+                                                        src={assetData.imageUrl}
+                                                        alt="Asset"
+                                                        style={{
+                                                            position: 'absolute',
+                                                            left: `calc(50% + ${asset.xOffset * 0.8}%)`,
+                                                            top: `calc(50% + ${asset.yOffset * 0.8}%)`,
+                                                            transform: `translate(-50%, -50%) rotate(${asset.rotation || 0}deg) scale(${(asset.scale || 1) * 0.4})`,
+                                                            width: '30px',
+                                                            height: '30px',
+                                                            objectFit: 'contain',
+                                                            pointerEvents: 'none',
+                                                        }}
+                                                    />
+                                                );
+                                            })}
                                         </div>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                            {/* Vote button */}
-                                            <button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    voteOnDesign(design.id);
-                                                }}
-                                                style={{
-                                                    background: 'none',
-                                                    border: 'none',
-                                                    cursor: 'pointer',
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    gap: '4px',
-                                                    color: userVotes[design.id] ? '#FF6B6B' : '#9CA3AF',
-                                                    fontSize: '13px',
-                                                    padding: '4px 8px',
-                                                    borderRadius: '4px',
-                                                    transition: 'all 0.2s',
-                                                }}
-                                                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)'}
-                                                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
-                                            >
-                                                <span>{userVotes[design.id] ? '♥' : '♡'}</span>
-                                                <span>{design.voteCount || 0}</span>
-                                            </button>
+
+                                        {/* Info */}
+                                        <div style={{ padding: '10px 12px' }}>
+                                            <div style={{
+                                                color: '#FFFFFF',
+                                                fontWeight: '600',
+                                                fontSize: '13px',
+                                                marginBottom: '8px',
+                                                overflow: 'hidden',
+                                                textOverflow: 'ellipsis',
+                                                whiteSpace: 'nowrap',
+                                                maxWidth: '100%',
+                                            }}>
+                                                {design.username || 'Anonymous'}
+                                            </div>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                {/* Vote button */}
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        voteOnDesign(design.id);
+                                                    }}
+                                                    style={{
+                                                        background: 'none',
+                                                        border: 'none',
+                                                        cursor: 'pointer',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '4px',
+                                                        color: userVotes[design.id] ? '#FF6B6B' : '#9CA3AF',
+                                                        fontSize: '13px',
+                                                        padding: '4px 8px',
+                                                        borderRadius: '4px',
+                                                        transition: 'all 0.2s',
+                                                    }}
+                                                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)'}
+                                                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                                                >
+                                                    <span>{userVotes[design.id] ? '♥' : '♡'}</span>
+                                                    <span>{design.voteCount || 0}</span>
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            ))}
+                                ))}
                         </div>
+                    )}
+
+                    {/* Refresh button fixed at bottom right */}
+                    {!loadingGallery && (
+                        <button
+                            onClick={fetchGallery}
+                            style={{
+                                position: 'fixed',
+                                bottom: '20px',
+                                right: '20px',
+                                padding: '12px 24px',
+                                backgroundColor: '#2A2A30',
+                                color: '#FFFFFF',
+                                border: 'none',
+                                borderRadius: '8px',
+                                cursor: 'pointer',
+                                fontSize: '14px',
+                                boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                                zIndex: 100,
+                            }}
+                        >
+                            Refresh
+                        </button>
                     )}
                 </main>
             ) : currentView === 'leaderboard' ? (
@@ -762,6 +845,165 @@ export const App = () => {
                                     </div>
                                 ))}
                         </div>
+                    )}
+                </main>
+            ) : currentView === 'saved' ? (
+                /* My Saved Rooms View */
+                <main style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '16px', overflow: 'auto', backgroundColor: '#1A1A1F' }}>
+
+                    {/* Loading state */}
+                    {loadingGallery && (
+                        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <div style={{ textAlign: 'center', color: '#9CA3AF' }}>
+                                <div style={{ fontSize: '32px', marginBottom: '12px' }}>⏳</div>
+                                <div>Loading saved rooms...</div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Empty state */}
+                    {!loadingGallery && galleryDesigns.filter(d => d.username === username || userVotes[d.id]).length === 0 && (
+                        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <div style={{ textAlign: 'center', color: '#9CA3AF' }}>
+                                <div style={{ fontSize: '48px', marginBottom: '12px' }}>📚</div>
+                                <div style={{ fontSize: '16px' }}>No saved rooms yet!</div>
+                                <div style={{ fontSize: '14px', marginTop: '4px' }}>Submit a design or like rooms in the gallery</div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Saved rooms grid */}
+                    {!loadingGallery && (
+                        <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+                            gap: '16px',
+                        }}>
+                            {galleryDesigns
+                                .filter(design => design.username === username || userVotes[design.id])
+                                .map((design, index) => (
+                                    <div
+                                        key={design.id || index}
+                                        style={{
+                                            backgroundColor: '#2A2A30',
+                                            borderRadius: '12px',
+                                            overflow: 'hidden',
+                                            cursor: 'pointer',
+                                            transition: 'transform 0.2s, box-shadow 0.2s',
+                                            position: 'relative',
+                                        }}
+                                        onClick={() => viewDesign(design)}
+                                        onMouseEnter={(e) => {
+                                            e.currentTarget.style.transform = 'translateY(-4px)';
+                                            e.currentTarget.style.boxShadow = '0 8px 20px rgba(0,0,0,0.3)';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.transform = 'translateY(0)';
+                                            e.currentTarget.style.boxShadow = 'none';
+                                        }}
+                                    >
+                                        {/* Badge indicator */}
+                                        <div style={{
+                                            position: 'absolute',
+                                            top: '8px',
+                                            left: '8px',
+                                            padding: '4px 10px',
+                                            borderRadius: '12px',
+                                            backgroundColor: design.username === username ? '#4CAF50' : '#FF6B6B',
+                                            color: '#FFFFFF',
+                                            fontSize: '11px',
+                                            fontWeight: '600',
+                                            zIndex: 5,
+                                        }}>
+                                            {design.username === username ? 'Your Submission' : '♥ Liked'}
+                                        </div>
+
+                                        {/* Thumbnail */}
+                                        <div style={{
+                                            width: '100%',
+                                            height: '160px',
+                                            backgroundColor: design.backgroundColor || '#F9E8E8',
+                                            position: 'relative',
+                                            overflow: 'hidden',
+                                        }}>
+                                            <img
+                                                src="room_1.png"
+                                                alt="Room"
+                                                style={{
+                                                    position: 'absolute',
+                                                    top: '50%',
+                                                    left: '50%',
+                                                    transform: 'translate(-50%, -50%)',
+                                                    maxWidth: '100%',
+                                                    maxHeight: '100%',
+                                                    objectFit: 'contain',
+                                                }}
+                                            />
+                                            {design.assets?.slice(0, 5).map((asset: any, i: number) => (
+                                                <img
+                                                    key={i}
+                                                    src={ASSETS.find(a => a.id === asset.assetId)?.imageUrl || ''}
+                                                    alt=""
+                                                    style={{
+                                                        position: 'absolute',
+                                                        left: `calc(50% + ${asset.xOffset * 0.6}%)`,
+                                                        top: `calc(50% + ${asset.yOffset * 0.6}%)`,
+                                                        transform: `translate(-50%, -50%) rotate(${asset.rotation || 0}deg) scale(${(asset.scale || 1) * 0.4})`,
+                                                        width: '30px',
+                                                        height: '30px',
+                                                        objectFit: 'contain',
+                                                    }}
+                                                />
+                                            ))}
+                                        </div>
+
+                                        {/* Card footer */}
+                                        <div style={{ padding: '12px' }}>
+                                            <div style={{
+                                                color: '#FFFFFF',
+                                                fontSize: '14px',
+                                                fontWeight: '600',
+                                                marginBottom: '4px',
+                                            }}>
+                                                {design.username || 'Anonymous'}
+                                            </div>
+                                            <div style={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '4px',
+                                                color: '#FF6B6B',
+                                                fontSize: '13px',
+                                            }}>
+                                                <span>♥</span>
+                                                <span>{design.voteCount || 0}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                        </div>
+                    )}
+
+                    {/* Refresh button fixed at bottom right */}
+                    {!loadingGallery && (
+                        <button
+                            onClick={fetchGallery}
+                            style={{
+                                position: 'fixed',
+                                bottom: '20px',
+                                right: '20px',
+                                padding: '12px 24px',
+                                backgroundColor: '#2A2A30',
+                                color: '#FFFFFF',
+                                border: 'none',
+                                borderRadius: '8px',
+                                cursor: 'pointer',
+                                fontSize: '14px',
+                                boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                                zIndex: 100,
+                            }}
+                        >
+                            Refresh
+                        </button>
                     )}
                 </main>
             ) : currentView === 'viewing' && viewingDesign ? (
