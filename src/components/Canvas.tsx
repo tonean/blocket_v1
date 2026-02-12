@@ -51,7 +51,7 @@ export const Canvas = (props: CanvasProps): JSX.Element => {
   } = props;
 
   // Use pink background to match screenshot
-  const backgroundColor = design.backgroundColor || '#F9E8E8';
+  const backgroundColor = design.backgroundColor || '#f1e1d6';
 
   // Sort assets by z-index for proper layering
   const sortedAssets = [...design.assets]
@@ -160,7 +160,7 @@ export const Canvas = (props: CanvasProps): JSX.Element => {
             >
               {/* Base room image */}
               <image
-                url="room_1.png"
+                url="room_2.png"
                 imageWidth={roomImageWidth}
                 imageHeight={roomImageHeight}
                 description="Room base"
@@ -215,7 +215,7 @@ export const Canvas = (props: CanvasProps): JSX.Element => {
       >
         {/* Base room image */}
         <image
-          url="room_1.png"
+          url="room_2.png"
           imageWidth={roomImageWidth}
           imageHeight={roomImageHeight}
           description="Room base"

@@ -28,7 +28,7 @@ function formatTimestamp(timestamp: number): string {
   if (diffMins < 60) return `${diffMins}m ago`;
   if (diffHours < 24) return `${diffHours}h ago`;
   if (diffDays < 7) return `${diffDays}d ago`;
-  
+
   return date.toLocaleDateString();
 }
 
@@ -79,7 +79,7 @@ export const MyDesigns = (props: MyDesignsProps): JSX.Element => {
           alignment="center middle"
         >
           <image
-            url="room_1.png"
+            url="room_2.png"
             imageWidth={250}
             imageHeight={187}
             description={`Your design for ${getThemeDisplayName(design.themeId)}`}
@@ -116,9 +116,9 @@ export const MyDesigns = (props: MyDesignsProps): JSX.Element => {
           <text size="small" color="#6B7280">
             Votes:
           </text>
-          <text 
-            size="medium" 
-            weight="bold" 
+          <text
+            size="medium"
+            weight="bold"
             color={design.voteCount > 0 ? '#10B981' : design.voteCount < 0 ? '#EF4444' : '#6B7280'}
           >
             {design.voteCount > 0 ? '+' : ''}{design.voteCount}

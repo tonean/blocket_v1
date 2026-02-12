@@ -131,7 +131,7 @@ export const Leaderboard = (props: LeaderboardProps): JSX.Element => {
               alignment="center middle"
             >
               <image
-                url="room_1.png"
+                url="room_2.png"
                 imageWidth={100}
                 imageHeight={75}
                 description={`Design by ${entry.username}`}

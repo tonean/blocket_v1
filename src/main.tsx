@@ -285,7 +285,7 @@ Devvit.addCustomPostType({
     return (
       <zstack width="100%" height="100%">
         {/* Main content with header */}
-        <vstack width="100%" height="100%" backgroundColor="#F9E8E8" gap="none">
+        <vstack width="100%" height="100%" backgroundColor="#f1e1d6" gap="none">
           {/* Header with hamburger menu and Preview/Edit toggle */}
           <Header
             username={currentUser?.username || 'Guest'}

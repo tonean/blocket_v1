@@ -17,7 +17,7 @@ export interface AssetMetadata {
  * These paths reference the assets folder in the project root
  */
 export const ASSET_PATHS = {
-  ROOM_BASE: 'assets/room_1.png',
+  ROOM_BASE: 'assets/room_2.png',
   BOOKSHELVES: [
     'assets/bookshelf_1.png',
     'assets/bookshelf_2.png',
@@ -51,7 +51,7 @@ export const ASSET_PATHS = {
  */
 export function generateAssetMetadata(): AssetMetadata[] {
   const assets: AssetMetadata[] = [];
-  
+
   // Add bookshelves
   ASSET_PATHS.BOOKSHELVES.forEach((path, index) => {
     assets.push({
@@ -61,7 +61,7 @@ export function generateAssetMetadata(): AssetMetadata[] {
       category: 'bookshelf',
     });
   });
-  
+
   // Add chairs
   ASSET_PATHS.CHAIRS.forEach((path, index) => {
     assets.push({
@@ -71,7 +71,7 @@ export function generateAssetMetadata(): AssetMetadata[] {
       category: 'chair',
     });
   });
-  
+
   // Add decorations
   const decorationNames = ['Clock', 'Cup', 'Desk', 'Lamp', 'Laptop', 'Mouse'];
   ASSET_PATHS.DECORATIONS.forEach((path, index) => {
@@ -83,7 +83,7 @@ export function generateAssetMetadata(): AssetMetadata[] {
       category: 'decoration',
     });
   });
-  
+
   // Add rugs
   ASSET_PATHS.RUGS.forEach((path, index) => {
     assets.push({
@@ -93,6 +93,6 @@ export function generateAssetMetadata(): AssetMetadata[] {
       category: 'rug',
     });
   });
-  
+
   return assets;
 }

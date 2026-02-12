@@ -157,7 +157,7 @@ export const MobileCanvas = (props: MobileCanvasProps): JSX.Element => {
         >
           {/* Base room image */}
           <image
-            url="room_1.png"
+            url="room_2.png"
             imageWidth={350}
             imageHeight={260}
             description="Room base"
@@ -204,7 +204,7 @@ export const MobileCanvas = (props: MobileCanvasProps): JSX.Element => {
     >
       {/* Base room image */}
       <image
-        url="room_1.png"
+        url="room_2.png"
         imageWidth={350}
         imageHeight={260}
         description="Room base"

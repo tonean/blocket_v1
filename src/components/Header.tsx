@@ -22,7 +22,7 @@ export const Header = (props: HeaderProps): JSX.Element => {
         <hstack
             width="100%"
             height="60px"
-            backgroundColor="#F9E8E8"
+            backgroundColor="#f1e1d6"
             alignment="center"
             padding="medium"
             gap="medium"

@@ -74,7 +74,7 @@ export const DesignGallery = (props: DesignGalleryProps): JSX.Element => {
           alignment="center middle"
         >
           <image
-            url="room_1.png"
+            url="room_2.png"
             imageWidth={150}
             imageHeight={100}
             description={`Design by ${design.username}`}
