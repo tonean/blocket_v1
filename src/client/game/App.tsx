@@ -6,6 +6,7 @@ interface Asset {
     name: string;
     category: string;
     imageUrl: string;
+    sizeScale: number;
 }
 
 interface PlacedAsset {
@@ -19,16 +20,16 @@ interface PlacedAsset {
 }
 
 const ASSETS: Asset[] = [
-    { id: 'desk', name: 'Desk', category: 'furniture', imageUrl: 'desk.png' },
-    { id: 'chair_1', name: 'Chair 1', category: 'furniture', imageUrl: 'chair_1.png' },
-    { id: 'chair_2', name: 'Chair 2', category: 'furniture', imageUrl: 'chair_2.png' },
-    { id: 'laptop', name: 'Laptop', category: 'electronics', imageUrl: 'laptop.png' },
-    { id: 'lamp', name: 'Lamp', category: 'lighting', imageUrl: 'lamp.png' },
-    { id: 'bookshelf_1', name: 'Bookshelf', category: 'furniture', imageUrl: 'bookshelf_1.png' },
-    { id: 'clock', name: 'Clock', category: 'decor', imageUrl: 'clock.png' },
-    { id: 'cup', name: 'Cup', category: 'decor', imageUrl: 'cup.png' },
-    { id: 'rug_1', name: 'Rug', category: 'decor', imageUrl: 'rug_1.png' },
-    { id: 'mouse', name: 'Mouse', category: 'electronics', imageUrl: 'mouse.png' },
+    { id: 'desk', name: 'Desk', category: 'furniture', imageUrl: 'desk.png', sizeScale: 1.4 },
+    { id: 'chair_1', name: 'Chair 1', category: 'furniture', imageUrl: 'chair_1.png', sizeScale: 1.0 },
+    { id: 'chair_2', name: 'Chair 2', category: 'furniture', imageUrl: 'chair_2.png', sizeScale: 1.0 },
+    { id: 'laptop', name: 'Laptop', category: 'electronics', imageUrl: 'laptop.png', sizeScale: 0.7 },
+    { id: 'lamp', name: 'Lamp', category: 'lighting', imageUrl: 'lamp.png', sizeScale: 1.0 },
+    { id: 'bookshelf_1', name: 'Bookshelf', category: 'furniture', imageUrl: 'bookshelf_1.png', sizeScale: 1.3 },
+    { id: 'clock', name: 'Clock', category: 'decor', imageUrl: 'clock.png', sizeScale: 0.6 },
+    { id: 'cup', name: 'Cup', category: 'decor', imageUrl: 'cup.png', sizeScale: 0.5 },
+    { id: 'rug_1', name: 'Rug', category: 'decor', imageUrl: 'rug_1.png', sizeScale: 1.3 },
+    { id: 'mouse', name: 'Mouse', category: 'electronics', imageUrl: 'mouse.png', sizeScale: 0.45 },
 ];
 
 const COLORS = ['#f1e1d6', '#FFFFFF', '#FFA500', '#4169E1', '#228B22', '#FF1493', '#8B4513', '#FFD700', '#9370DB', '#FF6347'];
@@ -48,6 +49,7 @@ export const App = () => {
     const [isResizingSheet, setIsResizingSheet] = useState(false);
     const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
     const [isOverTrash, setIsOverTrash] = useState(false);
+    const [isClipping, setIsClipping] = useState(false);
     const [backgroundColor, setBackgroundColor] = useState('#f1e1d6');
     const [showSubmitModal, setShowSubmitModal] = useState(false);
     const [isSubmitted, setIsSubmitted] = useState(false);
@@ -93,7 +95,7 @@ export const App = () => {
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
-    // Keyboard handler - R to flip horizontally
+    // Keyboard handler - R to flip, C to clip underneath
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key.toLowerCase() === 'r' && selectedAssetId && mode === 'edit') {
@@ -101,15 +103,28 @@ export const App = () => {
                     p.id === selectedAssetId ? { ...p, flipped: !p.flipped } : p
                 ));
             }
+            if (e.key.toLowerCase() === 'c') {
+                setIsClipping(true);
+            }
+        };
+        const handleKeyUp = (e: KeyboardEvent) => {
+            if (e.key.toLowerCase() === 'c') {
+                setIsClipping(false);
+            }
         };
         window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
+        window.addEventListener('keyup', handleKeyUp);
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+            window.removeEventListener('keyup', handleKeyUp);
+        };
     }, [selectedAssetId, mode]);
 
     // Handle resizing bottom sheet
     useEffect(() => {
         if (!isResizingSheet) return;
         const handleMove = (e: MouseEvent | TouchEvent) => {
+            e.preventDefault();
             const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
             const newHeight = ((window.innerHeight - clientY) / window.innerHeight) * 100;
             setBottomSheetHeight(Math.min(70, Math.max(20, newHeight)));
@@ -117,7 +132,7 @@ export const App = () => {
         const handleUp = () => setIsResizingSheet(false);
         window.addEventListener('mousemove', handleMove);
         window.addEventListener('mouseup', handleUp);
-        window.addEventListener('touchmove', handleMove);
+        window.addEventListener('touchmove', handleMove, { passive: false });
         window.addEventListener('touchend', handleUp);
         return () => {
             window.removeEventListener('mousemove', handleMove);
@@ -265,7 +280,7 @@ export const App = () => {
         };
         setPlacedAssets(prev => [...prev, newAsset]);
         setSelectedAssetId(newAsset.id);
-        if (isMobile) setIsBottomSheetOpen(false);
+        if (isMobile) { }
     };
 
     // Start dragging
@@ -413,15 +428,12 @@ export const App = () => {
 
             {/* Header - hide when viewing a design */}
             {currentView !== 'viewing' && (
-                <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 16px', backgroundColor: currentView === 'design' ? 'transparent' : '#1A1A1F', flexShrink: 0, position: 'relative', zIndex: 1 }}>
+                <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 16px 12px', backgroundColor: currentView === 'design' ? 'transparent' : 'rgba(139, 115, 85, 0.9)', flexShrink: 0, position: 'relative', zIndex: 1 }}>
                     <div style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
                         <button style={{ fontSize: '28px', background: 'none', border: 'none', cursor: 'pointer', padding: '8px', color: '#FFF' }} onClick={() => setIsMenuOpen(!isMenuOpen)}>☰</button>
                         {currentView === 'design' ? (
                             <>
-                                {/* Logo hidden */}
-                                {/* <div style={{ marginLeft: '8px', display: 'flex', alignItems: 'center' }}>
-                                    <img src="Blocket_text.png" alt="Blocket" style={{ height: isMobile ? '28px' : '64px', objectFit: 'contain' }} />
-                                </div> */}
+                                {!isMobile && <span style={{ fontFamily: 'PublicPixel, cursive, monospace', fontSize: '16px', fontWeight: 'bold', color: '#FFF', marginLeft: '4px', marginTop: '4px', animation: 'subtleFloat 3s ease-in-out infinite' }}>Blocket</span>}
                                 {!isMobile && (
                                     <div style={{
                                         position: 'absolute',
@@ -437,32 +449,31 @@ export const App = () => {
                                     </div>
                                 )}
                                 {isMobile && (
-                                    <span style={{
-                                        fontFamily: 'PublicPixel, cursive, monospace',
-                                        fontSize: '8px',
-                                        color: '#d3d3d3',
-                                        marginLeft: '8px',
+                                    <div style={{
+                                        position: 'absolute',
+                                        left: 'calc(50% - 20px)',
+                                        transform: 'translateX(-50%)',
                                         display: 'flex',
                                         flexDirection: 'column',
                                         alignItems: 'center',
                                         gap: '2px',
                                     }}>
-                                        <span>Theme: Classroom</span>
+                                        <span style={{ fontFamily: 'PublicPixel, cursive, monospace', fontSize: '8px', color: 'rgba(190, 160, 130, 1)' }}>Theme: Classroom</span>
                                         <span style={{ fontFamily: 'PublicPixel, cursive, monospace', fontSize: '10px', color: '#C75B5B', animation: 'timerPulse 5s ease-in-out infinite' }}>{timeLeft}</span>
-                                    </span>
+                                    </div>
                                 )}
                             </>
                         ) : currentView === 'gallery' ? (
                             <>
-                                <span style={{ fontFamily: 'monospace', fontSize: '13px', fontWeight: 'bold', color: '#FFF', marginLeft: '8px' }}>Gallery</span>
+                                <span style={{ fontFamily: 'PublicPixel, cursive, monospace', fontSize: isMobile ? '11px' : '16px', fontWeight: 'bold', color: '#FFF', marginLeft: '4px', marginTop: '4px' }}>Gallery</span>
                                 <div style={{
                                     display: 'flex',
                                     alignItems: 'center',
-                                    backgroundColor: '#2A2A30',
+                                    backgroundColor: 'rgba(255, 255, 255, 0.2)',
                                     borderRadius: '20px',
-                                    padding: '8px 14px',
-                                    marginLeft: '24px',
-                                    gap: '8px',
+                                    padding: isMobile ? '3px 8px' : '5px 10px',
+                                    marginLeft: isMobile ? '8px' : '24px',
+                                    gap: '4px',
                                     flex: 1,
                                 }}>
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6B7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -480,7 +491,7 @@ export const App = () => {
                                             border: 'none',
                                             outline: 'none',
                                             color: '#FFFFFF',
-                                            fontSize: '14px',
+                                            fontSize: isMobile ? '10px' : '14px',
                                             width: '100%',
                                         }}
                                     />
@@ -502,16 +513,20 @@ export const App = () => {
                                 </div>
                             </>
                         ) : currentView === 'leaderboard' ? (
-                            <span style={{ fontFamily: 'monospace', fontSize: '13px', fontWeight: 'bold', color: '#FFF', marginLeft: '8px' }}>Leaderboard</span>
+                            <span style={{ fontFamily: 'PublicPixel, cursive, monospace', fontSize: isMobile ? '11px' : '16px', fontWeight: 'bold', color: '#FFF', marginLeft: '4px', marginTop: '4px' }}>Leaderboard</span>
                         ) : currentView === 'saved' ? (
-                            <span style={{ fontFamily: 'monospace', fontSize: '13px', fontWeight: 'bold', color: '#FFF', marginLeft: '8px' }}>My Saved Rooms</span>
+                            <span style={{ fontFamily: 'PublicPixel, cursive, monospace', fontSize: isMobile ? '11px' : '16px', fontWeight: 'bold', color: '#FFF', marginLeft: '4px', marginTop: '4px' }}>My Saved Rooms</span>
                         ) : null}
                     </div>
                     {currentView === 'design' && (
-                        <div style={{ display: 'flex', backgroundColor: 'rgba(255, 255, 255, 0.25)', borderRadius: '20px', padding: '3px', animation: 'gentleGlow 4s ease-in-out infinite' }}>
-                            <button onClick={() => setMode('preview')} style={{ padding: isMobile ? '5px 10px' : '6px 14px', border: 'none', borderRadius: '18px', background: mode === 'preview' ? 'rgba(255, 255, 255, 0.9)' : 'transparent', cursor: 'pointer', fontWeight: '500', fontSize: isMobile ? '8px' : '10px', boxShadow: mode === 'preview' ? '0 2px 4px rgba(0,0,0,0.1)' : 'none', color: mode === 'preview' ? '#333' : 'rgba(190, 160, 130, 1)', transition: 'all 0.3s ease' }}>Preview</button>
-                            <button onClick={() => setMode('edit')} style={{ padding: isMobile ? '5px 10px' : '6px 14px', border: 'none', borderRadius: '18px', background: mode === 'edit' ? 'rgba(255, 255, 255, 0.9)' : 'transparent', cursor: 'pointer', fontWeight: '500', fontSize: isMobile ? '8px' : '10px', boxShadow: mode === 'edit' ? '0 2px 4px rgba(0,0,0,0.1)' : 'none', color: mode === 'edit' ? '#333' : '#FFF', transition: 'all 0.3s ease' }}>Edit</button>
-                        </div>
+                        isMobile ? (
+                            <button onClick={() => setMode(mode === 'edit' ? 'preview' : 'edit')} style={{ padding: '5px 14px', border: 'none', borderRadius: '18px', background: 'rgba(255, 255, 255, 0.9)', cursor: 'pointer', fontWeight: '400', fontSize: '9px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', color: '#333', transition: 'all 0.3s ease', animation: 'gentleGlow 4s ease-in-out infinite' }}>{mode === 'edit' ? 'Preview' : 'Edit'}</button>
+                        ) : (
+                            <div style={{ display: 'flex', backgroundColor: 'rgba(255, 255, 255, 0.25)', borderRadius: '20px', padding: '3px', animation: 'gentleGlow 4s ease-in-out infinite' }}>
+                                <button onClick={() => setMode('preview')} style={{ padding: '6px 14px', border: 'none', borderRadius: '18px', background: mode === 'preview' ? 'rgba(255, 255, 255, 0.9)' : 'transparent', cursor: 'pointer', fontWeight: '500', fontSize: '10px', boxShadow: mode === 'preview' ? '0 2px 4px rgba(0,0,0,0.1)' : 'none', color: mode === 'preview' ? '#333' : 'rgba(190, 160, 130, 1)', transition: 'all 0.3s ease' }}>Preview</button>
+                                <button onClick={() => setMode('edit')} style={{ padding: '6px 14px', border: 'none', borderRadius: '18px', background: mode === 'edit' ? 'rgba(255, 255, 255, 0.9)' : 'transparent', cursor: 'pointer', fontWeight: '500', fontSize: '10px', boxShadow: mode === 'edit' ? '0 2px 4px rgba(0,0,0,0.1)' : 'none', color: mode === 'edit' ? '#333' : '#FFF', transition: 'all 0.3s ease' }}>Edit</button>
+                            </div>
+                        )
                     )}
                 </header>
             )}
@@ -640,7 +655,7 @@ export const App = () => {
             {
                 currentView === 'gallery' ? (
                     /* Gallery View */
-                    <main style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '16px', overflow: 'auto', backgroundColor: '#1A1A1F' }}>
+                    <main style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '16px', overflow: 'auto', backgroundColor: '#f1e1d6' }}>
 
 
                         {loadingGallery && (
@@ -818,7 +833,7 @@ export const App = () => {
                     </main>
                 ) : currentView === 'leaderboard' ? (
                     /* Leaderboard View */
-                    <main style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '16px', overflow: 'auto', backgroundColor: '#1A1A1F' }}>
+                    <main style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '16px', overflow: 'auto', backgroundColor: '#f1e1d6' }}>
 
                         {/* Loading state */}
                         {loadingGallery && (
@@ -925,7 +940,7 @@ export const App = () => {
                     </main>
                 ) : currentView === 'saved' ? (
                     /* My Saved Rooms View */
-                    <main style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '16px', overflow: 'auto', backgroundColor: '#1A1A1F' }}>
+                    <main style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '16px', overflow: 'auto', backgroundColor: '#f1e1d6' }}>
 
                         {/* Loading state */}
                         {loadingGallery && (
@@ -1239,15 +1254,21 @@ export const App = () => {
                                 ref={roomImageRef as any}
                                 style={{
                                     position: 'absolute',
-                                    top: '50%',
+                                    top: (isMobile && mode === 'edit' && isBottomSheetOpen)
+                                        ? `calc(50% - ${bottomSheetHeight / 2}vh)`
+                                        : '50%',
                                     left: (mode === 'edit' && !isMobile) ? 'calc(50% - 150px)' : '50%',
                                     transform: 'translate(-50%, -50%)',
                                     maxWidth: '92%',
-                                    maxHeight: '92%',
+                                    maxHeight: (isMobile && mode === 'edit' && isBottomSheetOpen)
+                                        ? `${92 - bottomSheetHeight}%`
+                                        : '92%',
                                     width: '92%',
                                     aspectRatio: '4 / 3',
                                     zIndex: 2,
-                                    transition: 'left 0.3s ease',
+                                    transition: 'left 0.3s ease, top 0.3s ease, max-height 0.3s ease',
+                                    userSelect: 'none',
+                                    WebkitUserSelect: 'none',
                                 }}
                             >
                                 {/* Room image */}
@@ -1266,6 +1287,7 @@ export const App = () => {
                                 {placedAssets.map((placed) => {
                                     const asset = ASSETS.find(a => a.id === placed.assetId);
                                     if (!asset) return null;
+                                    const assetSize = `${10 * (asset.sizeScale || 1)}%`;
                                     return (
                                         <div
                                             key={placed.id}
@@ -1275,12 +1297,12 @@ export const App = () => {
                                                 left: `calc(50% + ${placed.xOffset}%)`,
                                                 top: `calc(50% + ${placed.yOffset}%)`,
                                                 transform: `translate(-50%, -50%) ${placed.flipped ? 'scaleX(-1)' : ''}`,
-                                                width: '10%',
+                                                width: assetSize,
                                                 aspectRatio: '1',
                                                 border: isDragging && selectedAssetId === placed.id ? '3px solid #8B7355' : 'none',
                                                 boxShadow: isDragging && selectedAssetId === placed.id ? '0 0 15px rgba(74, 144, 217, 0.6)' : 'none',
                                                 cursor: mode === 'edit' ? 'grab' : 'default',
-                                                zIndex: selectedAssetId === placed.id ? 100 : 10,
+                                                zIndex: (isClipping && isDragging && selectedAssetId === placed.id) ? 1 : (selectedAssetId === placed.id ? 100 : 10),
                                                 display: 'flex',
                                                 alignItems: 'center',
                                                 justifyContent: 'center',
@@ -1377,12 +1399,12 @@ export const App = () => {
                             )}
 
                             {/* Trash Zone */}
-                            {mode === 'edit' && (
+                            {mode === 'edit' && (!isMobile || isBottomSheetOpen) && (
                                 <div
                                     ref={trashRef}
                                     style={{
-                                        position: 'absolute',
-                                        bottom: '12px',
+                                        position: isMobile ? 'fixed' : 'absolute',
+                                        bottom: isMobile ? `calc(${bottomSheetHeight}vh + 10px)` : '12px',
                                         left: '12px',
                                         width: '50px',
                                         height: '50px',
@@ -1395,6 +1417,7 @@ export const App = () => {
                                         justifyContent: 'center',
                                         transition: 'all 0.2s',
                                         transform: isOverTrash ? 'scale(1.15)' : 'scale(1)',
+                                        zIndex: isMobile ? 201 : undefined,
                                     }}
                                 >
                                     <span style={{ fontSize: '22px' }}>🗑️</span>
@@ -1485,14 +1508,13 @@ export const App = () => {
                             ))}
                         </div>
 
-                        {/* Desktop Edit Panel */}
+                        {/* Desktop Asset Library */}
                         {mode === 'edit' && !isMobile && (
                             <div style={{ position: 'absolute', top: '16px', right: '16px', width: '280px', maxHeight: 'calc(100% - 32px)', backgroundColor: 'rgba(225, 215, 200, 0.85)', backdropFilter: 'blur(8px)', borderRadius: '12px', padding: '14px', overflow: 'auto', display: 'flex', flexDirection: 'column', gap: '12px', zIndex: 50 }}>
                                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
-                                    <h2 style={{ fontFamily: 'monospace', fontSize: '15px', fontWeight: 'bold', color: 'rgba(139, 115, 85, 1)', margin: 0 }}>Edit Panel</h2>
+                                    <h2 style={{ fontFamily: 'PublicPixel, cursive, monospace', fontSize: '13px', fontWeight: 'normal', color: 'rgba(139, 115, 85, 1)', margin: 0 }}>Asset Library</h2>
                                     <div style={{ display: 'flex', gap: '8px' }}>
-                                        <button style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '30px', padding: '4px', color: 'rgba(139, 115, 85, 1)', lineHeight: '1' }}>⌕</button>
-                                        <button style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '26px', padding: '4px', color: 'rgba(139, 115, 85, 1)', lineHeight: '1' }}>×</button>
+                                        <button onClick={() => setMode('preview')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '26px', padding: '4px', color: 'rgba(139, 115, 85, 1)', lineHeight: '1', transition: 'transform 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.2)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>×</button>
                                     </div>
                                 </div>
                                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
@@ -1509,10 +1531,11 @@ export const App = () => {
                                     ))}
                                 </div>
 
-                                <div style={{ marginTop: 'auto', padding: '8px', borderRadius: '6px', fontSize: '10px', color: '#666' }}>
+                                <div style={{ marginTop: 'auto', padding: '8px', borderRadius: '6px', fontSize: '10px', color: 'rgba(139, 115, 85, 0.7)' }}>
                                     <p style={{ margin: '2px 0' }}>• Click asset to add</p>
                                     <p style={{ margin: '2px 0' }}>• Drag to move</p>
                                     <p style={{ margin: '2px 0' }}>• Press <strong>R</strong> to flip</p>
+                                    <p style={{ margin: '2px 0' }}>• Hold <strong>C</strong> while dragging to clip under</p>
                                     <p style={{ margin: '2px 0' }}>• Drag to 🗑️ to delete</p>
                                 </div>
                             </div>
@@ -1526,30 +1549,78 @@ export const App = () => {
                 mode === 'edit' && isMobile && (
                     <>
                         {!isBottomSheetOpen && (
-                            <button onClick={() => setIsBottomSheetOpen(true)} style={{ position: 'absolute', bottom: 0, left: 0, right: 0, backgroundColor: '#FFF', border: 'none', borderRadius: '16px 16px 0 0', padding: '10px 16px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', boxShadow: '0 -4px 20px rgba(0,0,0,0.1)', cursor: 'pointer' }}>
-                                <div style={{ width: '40px', height: '4px', backgroundColor: '#CCC', borderRadius: '2px' }} />
-                                <span style={{ fontSize: '14px', fontWeight: '500' }}>Thing Library</span>
+                            <button
+                                onClick={() => setIsBottomSheetOpen(true)}
+                                style={{
+                                    position: 'fixed',
+                                    bottom: 0,
+                                    left: 0,
+                                    right: 0,
+                                    backgroundColor: 'rgba(225, 215, 200, 0.95)',
+                                    border: 'none',
+                                    borderRadius: '16px 16px 0 0',
+                                    padding: '12px 16px',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    alignItems: 'center',
+                                    gap: '6px',
+                                    boxShadow: '0 -4px 20px rgba(139, 115, 85, 0.2)',
+                                    cursor: 'pointer',
+                                    zIndex: 200,
+                                }}
+                            >
+                                <div style={{ width: '40px', height: '4px', backgroundColor: 'rgba(139, 115, 85, 0.4)', borderRadius: '2px' }} />
+                                <span style={{ fontFamily: 'PublicPixel, cursive, monospace', fontSize: '11px', fontWeight: 'normal', color: 'rgba(139, 115, 85, 1)' }}>Asset Library</span>
                             </button>
                         )}
 
                         {isBottomSheetOpen && (
-                            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: `${bottomSheetHeight}vh`, backgroundColor: '#FFF', borderRadius: '16px 16px 0 0', boxShadow: '0 -4px 20px rgba(0,0,0,0.15)', display: 'flex', flexDirection: 'column', transition: isResizingSheet ? 'none' : 'height 0.2s ease' }}>
-                                <div onMouseDown={() => setIsResizingSheet(true)} onTouchStart={() => setIsResizingSheet(true)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '8px 16px', cursor: 'ns-resize' }}>
-                                    <div style={{ width: '50px', height: '5px', backgroundColor: '#AAA', borderRadius: '3px', marginBottom: '4px' }} />
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                        <h3 style={{ fontSize: '14px', fontWeight: 'bold', margin: 0 }}>Thing Library</h3>
-                                        <button onClick={() => setIsBottomSheetOpen(false)} style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer' }}>×</button>
+                            <div style={{
+                                position: 'fixed',
+                                bottom: 0,
+                                left: 0,
+                                right: 0,
+                                height: `${bottomSheetHeight}vh`,
+                                backgroundColor: 'rgba(225, 215, 200, 0.98)',
+                                borderRadius: '16px 16px 0 0',
+                                boxShadow: '0 -4px 20px rgba(139, 115, 85, 0.3)',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                transition: isResizingSheet ? 'none' : 'height 0.2s ease',
+                                zIndex: 200,
+                            }}>
+                                {/* Drag Handle */}
+                                <div
+                                    onTouchStart={(e) => { e.preventDefault(); e.stopPropagation(); setIsResizingSheet(true); }}
+                                    onMouseDown={() => setIsResizingSheet(true)}
+                                    style={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        alignItems: 'center',
+                                        padding: '12px 16px 8px',
+                                        cursor: 'ns-resize',
+                                        touchAction: 'none',
+                                        userSelect: 'none',
+                                    }}
+                                >
+                                    <div style={{ width: '50px', height: '5px', backgroundColor: 'rgba(139, 115, 85, 0.5)', borderRadius: '3px', marginBottom: '8px' }} />
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                                        <h3 style={{ fontFamily: 'PublicPixel, cursive, monospace', fontSize: '11px', fontWeight: 'normal', margin: 0, color: 'rgba(139, 115, 85, 1)' }}>Asset Library</h3>
+                                        <button
+                                            onClick={(e) => { e.stopPropagation(); setIsBottomSheetOpen(false); setMode('preview'); }}
+                                            style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer', color: 'rgba(139, 115, 85, 1)', padding: '0 4px', lineHeight: '1' }}
+                                        >×</button>
                                     </div>
                                 </div>
-                                <div style={{ flex: 1, overflow: 'auto', padding: '0 12px 12px' }}>
-                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '6px', marginBottom: '10px' }}>
+                                {/* Asset Grid */}
+                                <div style={{ flex: 1, overflow: 'auto', padding: '0 12px 12px', WebkitOverflowScrolling: 'touch' }}>
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '6px' }}>
                                         {ASSETS.map((asset) => (
-                                            <div key={asset.id} onClick={() => handleAssetClick(asset)} style={{ aspectRatio: '1', backgroundColor: '#F5F5F5', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px', cursor: 'pointer', border: '1px solid #DDD' }}>
+                                            <div key={asset.id} onClick={() => handleAssetClick(asset)} style={{ aspectRatio: '1', backgroundColor: 'rgba(255, 255, 255, 0.5)', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px', cursor: 'pointer', border: '1px solid rgba(139, 115, 85, 0.2)' }}>
                                                 <img src={asset.imageUrl} alt={asset.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                                             </div>
                                         ))}
                                     </div>
-
                                 </div>
                             </div>
                         )}
@@ -1573,32 +1644,35 @@ export const App = () => {
                         zIndex: 2000,
                     }}>
                         <div style={{
-                            backgroundColor: '#1E1E23',
+                            backgroundColor: '#f1e1d6',
                             borderRadius: '16px',
                             padding: '32px',
                             maxWidth: '400px',
                             width: '90%',
                             textAlign: 'center',
-                            boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+                            boxShadow: '0 20px 60px rgba(139, 115, 85, 0.3)',
+                            border: '1px solid rgba(139, 115, 85, 0.2)',
                         }}>
                             {/* Success icon */}
                             <div style={{
                                 width: '64px',
                                 height: '64px',
                                 borderRadius: '50%',
-                                backgroundColor: '#10B981',
+                                backgroundColor: 'rgba(139, 115, 85, 1)',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 margin: '0 auto 20px',
                                 fontSize: '32px',
+                                color: '#FFF',
                             }}>
                                 ✓
                             </div>
 
                             <h2 style={{
-                                color: '#FFFFFF',
-                                fontSize: '24px',
+                                color: 'rgba(100, 80, 60, 1)',
+                                fontFamily: 'PublicPixel, cursive, monospace',
+                                fontSize: '18px',
                                 fontWeight: 'bold',
                                 margin: '0 0 12px',
                             }}>
@@ -1606,7 +1680,7 @@ export const App = () => {
                             </h2>
 
                             <p style={{
-                                color: '#9CA3AF',
+                                color: 'rgba(139, 115, 85, 0.8)',
                                 fontSize: '14px',
                                 margin: '0 0 28px',
                                 lineHeight: '1.5',
@@ -1630,7 +1704,7 @@ export const App = () => {
                                     }}
                                     style={{
                                         padding: '14px 24px',
-                                        backgroundColor: '#4A90D9',
+                                        backgroundColor: 'rgba(139, 115, 85, 1)',
                                         color: '#FFFFFF',
                                         border: 'none',
                                         borderRadius: '8px',
@@ -1638,9 +1712,10 @@ export const App = () => {
                                         fontWeight: '600',
                                         cursor: 'pointer',
                                         transition: 'background-color 0.2s',
+                                        fontFamily: 'PublicPixel, cursive, monospace',
                                     }}
-                                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#3A7BC8'}
-                                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#4A90D9'}
+                                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(100, 80, 60, 1)'}
+                                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(139, 115, 85, 1)'}
                                 >
                                     View Gallery
                                 </button>
@@ -1653,8 +1728,8 @@ export const App = () => {
                                     style={{
                                         padding: '14px 24px',
                                         backgroundColor: 'transparent',
-                                        color: '#9CA3AF',
-                                        border: '1px solid #4B5563',
+                                        color: 'rgba(139, 115, 85, 0.8)',
+                                        border: '1px solid rgba(139, 115, 85, 0.3)',
                                         borderRadius: '8px',
                                         fontSize: '15px',
                                         fontWeight: '500',
@@ -1662,12 +1737,12 @@ export const App = () => {
                                         transition: 'all 0.2s',
                                     }}
                                     onMouseEnter={(e) => {
-                                        e.currentTarget.style.borderColor = '#6B7280';
-                                        e.currentTarget.style.color = '#FFFFFF';
+                                        e.currentTarget.style.borderColor = 'rgba(139, 115, 85, 0.6)';
+                                        e.currentTarget.style.color = 'rgba(100, 80, 60, 1)';
                                     }}
                                     onMouseLeave={(e) => {
-                                        e.currentTarget.style.borderColor = '#4B5563';
-                                        e.currentTarget.style.color = '#9CA3AF';
+                                        e.currentTarget.style.borderColor = 'rgba(139, 115, 85, 0.3)';
+                                        e.currentTarget.style.color = 'rgba(139, 115, 85, 0.8)';
                                     }}
                                 >
                                     Continue Editing
