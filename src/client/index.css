@@ -99,3 +99,15 @@ body {
     box-shadow: 0 4px 16px rgba(139, 115, 85, 0.35);
   }
 }
+
+@keyframes confettiFall {
+  0% {
+    transform: translateY(-10px) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(100vh) rotate(720deg) scale(0.5);
+    opacity: 0;
+  }
+}

@@ -56,6 +56,8 @@ export const App = () => {
     const [isLiked, setIsLiked] = useState(false);
     const [heartAnimation, setHeartAnimation] = useState(false);
     const [fallingHearts, setFallingHearts] = useState<Array<{ id: number, left: number, delay: number }>>([]);
+    const [confettiPieces, setConfettiPieces] = useState<Array<{ id: number, left: number, delay: number, color: string, size: number }>>([]);
+    const [savedRooms, setSavedRooms] = useState<Record<string, boolean>>({});
     const [likeCount, setLikeCount] = useState(0);
     const [wasUpdate, setWasUpdate] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -191,6 +193,18 @@ export const App = () => {
 
             setIsSubmitted(true);
             setShowSubmitModal(true);
+
+            // Trigger confetti celebration
+            const confettiColors = ['#FF6B6B', '#FFD93D', '#6BCB77', '#4D96FF', '#FF922B', '#CC5DE8', '#20C997', '#FF6B9D'];
+            const newConfetti = Array.from({ length: 50 }, (_, i) => ({
+                id: Date.now() + i,
+                left: Math.random() * 100,
+                delay: Math.random() * 1500,
+                color: confettiColors[Math.floor(Math.random() * confettiColors.length)],
+                size: 6 + Math.random() * 8,
+            }));
+            setConfettiPieces(newConfetti);
+            setTimeout(() => setConfettiPieces([]), 5000);
         } catch (error) {
             console.error('Submit error:', error);
             setSubmitError(error instanceof Error ? error.message : 'Failed to submit');
@@ -801,6 +815,24 @@ export const App = () => {
                                                         <span style={{ color: userVotes[design.id] ? '#FF6B6B' : '#FFFFFF' }}>♥</span>
                                                         <span>{design.voteCount || 0}</span>
                                                     </button>
+                                                    {/* Star / Save button */}
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            setSavedRooms(prev => ({ ...prev, [design.id]: !prev[design.id] }));
+                                                        }}
+                                                        style={{
+                                                            background: 'none',
+                                                            border: 'none',
+                                                            cursor: 'pointer',
+                                                            fontSize: '14px',
+                                                            padding: '4px 8px',
+                                                            transition: 'all 0.2s',
+                                                            color: savedRooms[design.id] ? '#FFD700' : '#9CA3AF',
+                                                        }}
+                                                    >
+                                                        {savedRooms[design.id] ? '★' : '☆'}
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>
@@ -882,6 +914,8 @@ export const App = () => {
                                             <div style={{
                                                 width: '40px',
                                                 height: '40px',
+                                                minWidth: '40px',
+                                                minHeight: '40px',
                                                 borderRadius: '50%',
                                                 backgroundColor: index < 3 ? 'rgba(0,0,0,0.2)' : '#1A1A1F',
                                                 display: 'flex',
@@ -890,6 +924,7 @@ export const App = () => {
                                                 fontSize: '18px',
                                                 fontWeight: 'bold',
                                                 color: index < 3 ? '#000' : '#FFF',
+                                                flexShrink: 0,
                                             }}>
                                                 {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : index + 1}
                                             </div>
@@ -911,11 +946,14 @@ export const App = () => {
                                             </div>
 
                                             {/* User info */}
-                                            <div style={{ flex: 1 }}>
+                                            <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
                                                 <div style={{
                                                     color: index < 3 ? '#000' : '#FFFFFF',
                                                     fontWeight: '600',
-                                                    fontSize: '16px',
+                                                    fontSize: isMobile ? '11px' : '16px',
+                                                    overflow: 'hidden',
+                                                    textOverflow: 'ellipsis',
+                                                    whiteSpace: 'nowrap',
                                                 }}>
                                                     {design.username || 'Anonymous'}
                                                 </div>
@@ -927,8 +965,9 @@ export const App = () => {
                                                 alignItems: 'center',
                                                 gap: '6px',
                                                 color: index < 3 ? '#000' : '#FF6B6B',
-                                                fontSize: '18px',
+                                                fontSize: isMobile ? '14px' : '18px',
                                                 fontWeight: 'bold',
+                                                flexShrink: 0,
                                             }}>
                                                 <span>♥</span>
                                                 <span>{design.voteCount || 0}</span>
@@ -953,7 +992,7 @@ export const App = () => {
                         )}
 
                         {/* Empty state */}
-                        {!loadingGallery && galleryDesigns.filter(d => d.username === username || userVotes[d.id]).length === 0 && (
+                        {!loadingGallery && galleryDesigns.filter(d => d.username === username || savedRooms[d.id]).length === 0 && (
                             <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                 <div style={{ textAlign: 'center', color: '#9CA3AF' }}>
                                     <div style={{ fontSize: '48px', marginBottom: '12px' }}>📚</div>
@@ -971,7 +1010,7 @@ export const App = () => {
                                 gap: '16px',
                             }}>
                                 {galleryDesigns
-                                    .filter(design => design.username === username || userVotes[design.id])
+                                    .filter(design => design.username === username || savedRooms[design.id])
                                     .map((design, index) => (
                                         <div
                                             key={design.id || index}
@@ -1000,13 +1039,13 @@ export const App = () => {
                                                 left: '8px',
                                                 padding: '4px 10px',
                                                 borderRadius: '12px',
-                                                backgroundColor: design.username === username ? '#4CAF50' : '#FF6B6B',
-                                                color: '#FFFFFF',
+                                                backgroundColor: design.username === username ? '#4CAF50' : savedRooms[design.id] ? '#FFD700' : '#FF6B6B',
+                                                color: design.username === username ? '#FFFFFF' : savedRooms[design.id] ? '#000' : '#FFFFFF',
                                                 fontSize: '11px',
                                                 fontWeight: '600',
                                                 zIndex: 5,
                                             }}>
-                                                {design.username === username ? 'Your Submission' : '♥ Liked'}
+                                                {design.username === username ? 'Your Submission' : savedRooms[design.id] ? '★ Saved' : '♥ Liked'}
                                             </div>
 
                                             {/* Thumbnail */}
@@ -1052,9 +1091,13 @@ export const App = () => {
                                             <div style={{ padding: '12px' }}>
                                                 <div style={{
                                                     color: '#FFFFFF',
-                                                    fontSize: '14px',
+                                                    fontSize: '11px',
                                                     fontWeight: '600',
                                                     marginBottom: '4px',
+                                                    overflow: 'hidden',
+                                                    textOverflow: 'ellipsis',
+                                                    whiteSpace: 'nowrap',
+                                                    maxWidth: '100%',
                                                 }}>
                                                     {design.username || 'Anonymous'}
                                                 </div>
@@ -1150,43 +1193,23 @@ export const App = () => {
                             gap: '10px',
                             zIndex: 10,
                         }}>
-                            {/* Menu button */}
-                            <button
-                                onClick={() => setIsMenuOpen(!isMenuOpen)}
-                                style={{
-                                    width: '40px',
-                                    height: '40px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    backgroundColor: 'rgba(0,0,0,0.7)',
-                                    color: '#FFFFFF',
-                                    border: 'none',
-                                    borderRadius: '50%',
-                                    cursor: 'pointer',
-                                    fontSize: '20px',
-
-                                }}
-                            >
-                                ☰
-                            </button>
 
                             {/* Back button */}
                             <button
                                 onClick={() => { setViewingDesign(null); setCurrentView('gallery'); }}
                                 style={{
-                                    width: '40px',
-                                    height: '40px',
+                                    width: '28px',
+                                    height: '28px',
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
-                                    backgroundColor: 'rgba(0,0,0,0.7)',
+                                    backgroundColor: 'transparent',
                                     color: '#FFFFFF',
                                     border: 'none',
                                     borderRadius: '50%',
                                     cursor: 'pointer',
-                                    fontSize: '20px',
-
+                                    fontFamily: 'PublicPixel, cursive, monospace',
+                                    fontSize: '14px',
                                 }}
                             >
                                 ‹
@@ -1195,12 +1218,12 @@ export const App = () => {
                             {/* Username - takes remaining space */}
                             <div style={{
                                 flex: 1,
-                                padding: '10px 16px',
-                                backgroundColor: 'rgba(0,0,0,0.7)',
-                                borderRadius: '20px',
+                                padding: '8px 12px',
+                                backgroundColor: 'transparent',
                                 color: '#FFFFFF',
-                                fontSize: '14px',
-                                fontWeight: '600',
+                                fontFamily: 'PublicPixel, cursive, monospace',
+                                fontSize: '10px',
+                                fontWeight: 'normal',
                                 textAlign: 'center',
                             }}>
                                 {viewingDesign.username}'s Room
@@ -1212,21 +1235,39 @@ export const App = () => {
                                 style={{
                                     display: 'flex',
                                     alignItems: 'center',
-                                    gap: '6px',
-                                    padding: '10px 16px',
-                                    backgroundColor: userVotes[viewingDesign.id] ? 'rgba(255,107,107,0.9)' : 'rgba(0,0,0,0.7)',
+                                    gap: '3px',
+                                    padding: '4px 6px',
+                                    height: '28px',
+                                    backgroundColor: 'transparent',
                                     color: '#FFFFFF',
                                     border: 'none',
-                                    borderRadius: '20px',
                                     cursor: 'pointer',
-                                    fontSize: '14px',
-                                    fontWeight: '600',
-
                                     transition: 'all 0.2s',
                                 }}
                             >
-                                <span style={{ color: userVotes[viewingDesign.id] ? '#FF6B6B' : '#FFFFFF' }}>♥</span>
-                                <span>{viewingDesign.voteCount || 0}</span>
+                                <span style={{ color: userVotes[viewingDesign.id] ? '#FF6B6B' : '#FFFFFF', fontSize: '24px', lineHeight: '1' }}>♥</span>
+                                <span style={{ fontSize: '9px', fontFamily: 'PublicPixel, cursive, monospace' }}>{viewingDesign.voteCount || 0}</span>
+                            </button>
+
+                            {/* Star / Save button */}
+                            <button
+                                onClick={() => setSavedRooms(prev => ({ ...prev, [viewingDesign.id]: !prev[viewingDesign.id] }))}
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    height: '28px',
+                                    backgroundColor: 'transparent',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    fontSize: '28px',
+                                    lineHeight: '1',
+                                    color: savedRooms[viewingDesign.id] ? '#FFD700' : '#FFFFFF',
+                                    transition: 'all 0.2s',
+                                    padding: '0 4px',
+                                }}
+                            >
+                                {savedRooms[viewingDesign.id] ? '★' : '☆'}
                             </button>
                         </div>
                     </main>
@@ -1329,8 +1370,10 @@ export const App = () => {
                                     {isSubmitted && (
                                         <div style={{
                                             position: 'absolute',
-                                            bottom: '70px',
-                                            right: '16px',
+                                            top: isMobile ? '8px' : undefined,
+                                            bottom: isMobile ? undefined : '16px',
+                                            left: isMobile ? '50%' : '16px',
+                                            transform: isMobile ? 'translateX(-50%)' : 'none',
                                             padding: '6px 12px',
                                             backgroundColor: '#10B981',
                                             color: '#FFFFFF',
@@ -1340,6 +1383,7 @@ export const App = () => {
                                             display: 'flex',
                                             alignItems: 'center',
                                             gap: '6px',
+                                            zIndex: 10,
                                         }}>
                                             <span>✓</span> In Gallery
                                         </div>
@@ -1479,7 +1523,7 @@ export const App = () => {
                                     >
                                         <span style={{
                                             fontSize: '24px',
-                                            color: isLiked ? '#FFB6C1' : '#FFFFFF',
+                                            color: isLiked ? '#FF4444' : '#FFFFFF',
                                             transition: 'color 0.3s',
                                         }}>
                                             {isLiked ? '♥' : '♡'}
@@ -1505,6 +1549,25 @@ export const App = () => {
                                 >
                                     ♥
                                 </div>
+                            ))}
+
+                            {/* Confetti animation */}
+                            {confettiPieces.map(piece => (
+                                <div
+                                    key={piece.id}
+                                    style={{
+                                        position: 'absolute',
+                                        top: '-10px',
+                                        left: `${piece.left}%`,
+                                        width: `${piece.size}px`,
+                                        height: `${piece.size}px`,
+                                        backgroundColor: piece.color,
+                                        borderRadius: Math.random() > 0.5 ? '50%' : '2px',
+                                        animation: `confettiFall ${2 + Math.random() * 2}s linear ${piece.delay}ms forwards`,
+                                        pointerEvents: 'none',
+                                        zIndex: 1000,
+                                    }}
+                                />
                             ))}
                         </div>
 
