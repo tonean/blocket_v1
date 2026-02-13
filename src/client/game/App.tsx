@@ -20,16 +20,58 @@ interface PlacedAsset {
 }
 
 const ASSETS: Asset[] = [
+    // Furniture
     { id: 'desk', name: 'Desk', category: 'furniture', imageUrl: 'desk.png', sizeScale: 1.4 },
+    { id: 'desk_2', name: 'Desk 2', category: 'furniture', imageUrl: 'desk_2.PNG', sizeScale: 1.4 },
     { id: 'chair_1', name: 'Chair 1', category: 'furniture', imageUrl: 'chair_1.png', sizeScale: 1.0 },
     { id: 'chair_2', name: 'Chair 2', category: 'furniture', imageUrl: 'chair_2.png', sizeScale: 1.0 },
+    { id: 'chair_3', name: 'Chair 3', category: 'furniture', imageUrl: 'chair_3.PNG', sizeScale: 1.0 },
+    { id: 'chair_4', name: 'Chair 4', category: 'furniture', imageUrl: 'chair_4.PNG', sizeScale: 1.0 },
+    { id: 'chair_5', name: 'Chair 5', category: 'furniture', imageUrl: 'chair_5.PNG', sizeScale: 1.0 },
+    { id: 'bookshelf_1', name: 'Bookshelf 1', category: 'furniture', imageUrl: 'bookshelf_1.png', sizeScale: 1.3 },
+    { id: 'bookshelf_2', name: 'Bookshelf 2', category: 'furniture', imageUrl: 'bookshelf_2.png', sizeScale: 1.3 },
+    { id: 'bookshelf_3', name: 'Bookshelf 3', category: 'furniture', imageUrl: 'bookshelf_3.png', sizeScale: 1.3 },
+    { id: 'shelf_1', name: 'Shelf', category: 'furniture', imageUrl: 'shelf_1.PNG', sizeScale: 1.2 },
+    { id: 'curtain_1', name: 'Curtain', category: 'furniture', imageUrl: 'curtain_1.png', sizeScale: 1.3 },
+    { id: 'rug_1', name: 'Rug 1', category: 'furniture', imageUrl: 'rug_1.png', sizeScale: 1.3 },
+    { id: 'rug_2', name: 'Rug 2', category: 'furniture', imageUrl: 'rug_2.png', sizeScale: 1.3 },
+    { id: 'rug_3', name: 'Rug 3', category: 'furniture', imageUrl: 'rug_3.png', sizeScale: 1.3 },
+    // Electronics
     { id: 'laptop', name: 'Laptop', category: 'electronics', imageUrl: 'laptop.png', sizeScale: 0.7 },
+    { id: 'mouse', name: 'Mouse', category: 'electronics', imageUrl: 'mouse.png', sizeScale: 0.45 },
+    { id: 'coffee_machine', name: 'Coffee Machine', category: 'electronics', imageUrl: 'coffee_machine.PNG', sizeScale: 0.8 },
+    { id: 'printer', name: 'Printer', category: 'electronics', imageUrl: 'printer.PNG', sizeScale: 0.9 },
+    { id: 'light_switch', name: 'Light Switch', category: 'electronics', imageUrl: 'light_switch.PNG', sizeScale: 0.4 },
+    // Lighting
     { id: 'lamp', name: 'Lamp', category: 'lighting', imageUrl: 'lamp.png', sizeScale: 1.0 },
-    { id: 'bookshelf_1', name: 'Bookshelf', category: 'furniture', imageUrl: 'bookshelf_1.png', sizeScale: 1.3 },
+    // Decor
     { id: 'clock', name: 'Clock', category: 'decor', imageUrl: 'clock.png', sizeScale: 0.6 },
     { id: 'cup', name: 'Cup', category: 'decor', imageUrl: 'cup.png', sizeScale: 0.5 },
-    { id: 'rug_1', name: 'Rug', category: 'decor', imageUrl: 'rug_1.png', sizeScale: 1.3 },
-    { id: 'mouse', name: 'Mouse', category: 'electronics', imageUrl: 'mouse.png', sizeScale: 0.45 },
+    { id: 'plant', name: 'Plant', category: 'decor', imageUrl: 'plant.png', sizeScale: 0.8 },
+    { id: 'plant_1', name: 'Plant 1', category: 'decor', imageUrl: 'plant_1.PNG', sizeScale: 0.8 },
+    { id: 'plant_2', name: 'Plant 2', category: 'decor', imageUrl: 'plant_2.PNG', sizeScale: 0.8 },
+    { id: 'plant_3', name: 'Plant 3', category: 'decor', imageUrl: 'plant_3.PNG', sizeScale: 0.8 },
+    { id: 'plant_4', name: 'Plant 4', category: 'decor', imageUrl: 'plant_4.PNG', sizeScale: 0.8 },
+    { id: 'plant_5', name: 'Plant 5', category: 'decor', imageUrl: 'plant_5.PNG', sizeScale: 0.8 },
+    { id: 'plant_6', name: 'Plant 6', category: 'decor', imageUrl: 'plant_6.PNG', sizeScale: 0.8 },
+    { id: 'plant_7', name: 'Plant 7', category: 'decor', imageUrl: 'plant_7.PNG', sizeScale: 0.8 },
+    { id: 'plant_8', name: 'Plant 8', category: 'decor', imageUrl: 'plant_8.PNG', sizeScale: 0.8 },
+    { id: 'poster_1', name: 'Poster', category: 'decor', imageUrl: 'poster_1.PNG', sizeScale: 0.9 },
+    { id: 'calendar', name: 'Calendar', category: 'decor', imageUrl: 'calendar.PNG', sizeScale: 0.7 },
+    { id: 'to_do', name: 'To Do List', category: 'decor', imageUrl: 'to_do.PNG', sizeScale: 0.7 },
+    { id: 'cube', name: 'Cube', category: 'decor', imageUrl: 'cube.PNG', sizeScale: 0.6 },
+    { id: 'cube_2', name: 'Cube 2', category: 'decor', imageUrl: 'cube_2.PNG', sizeScale: 0.6 },
+    // Classroom
+    { id: 'chalkboard', name: 'Chalkboard', category: 'furniture', imageUrl: 'chalkboard.PNG', sizeScale: 1.5 },
+    { id: 'book', name: 'Book', category: 'decor', imageUrl: 'book.PNG', sizeScale: 0.5 },
+    { id: 'backpack_1', name: 'Backpack 1', category: 'decor', imageUrl: 'backpack_1.png', sizeScale: 0.7 },
+    { id: 'backpack_2', name: 'Backpack 2', category: 'decor', imageUrl: 'backpack_2.png', sizeScale: 0.7 },
+    { id: 'trash', name: 'Trash', category: 'decor', imageUrl: 'trash.png', sizeScale: 0.6 },
+    { id: 'trashcan', name: 'Trashcan', category: 'decor', imageUrl: 'trashcan.PNG', sizeScale: 0.7 },
+    // People
+    { id: 'student_1', name: 'Student 1', category: 'people', imageUrl: 'student_1.png', sizeScale: 1.0 },
+    { id: 'student_2', name: 'Student 2', category: 'people', imageUrl: 'student_2.png', sizeScale: 1.0 },
+    { id: 'teacher', name: 'Teacher', category: 'people', imageUrl: 'teacher.png', sizeScale: 1.1 },
 ];
 
 const COLORS = ['#f1e1d6', '#FFFFFF', '#FFA500', '#4169E1', '#228B22', '#FF1493', '#8B4513', '#FFD700', '#9370DB', '#FF6347'];

@@ -4,7 +4,7 @@
  */
 
 import { Devvit, useState, useInterval } from '@devvit/public-api';
-import { Design } from '../types/models.js';
+import { Design, Asset } from '../types/models.js';
 import { Canvas } from './Canvas.js';
 import { AutoSaveManager } from '../utils/AutoSaveManager.js';
 import { SaveStatusIndicator } from './SaveStatusIndicator.js';
@@ -13,6 +13,7 @@ import { useAutoSave } from '../hooks/useAutoSave.js';
 export interface CanvasControllerProps {
   design: Design;
   mode: 'edit' | 'preview';
+  assets?: Asset[];
   onDesignUpdate: (design: Design) => void;
   onAssetPlace?: (assetId: string) => void;
   onSubmit?: () => void;
@@ -24,7 +25,7 @@ export interface CanvasControllerProps {
  * CanvasController component that manages canvas interactions
  */
 export const CanvasController = (props: CanvasControllerProps): JSX.Element => {
-  const { design, mode, onDesignUpdate, onAssetPlace, onSubmit, isSubmitted, autoSaveManager } = props;
+  const { design, mode, assets, onDesignUpdate, onAssetPlace, onSubmit, isSubmitted, autoSaveManager } = props;
 
   // Track selected asset
   const [selectedAssetIndex, setSelectedAssetIndex] = useState<number | undefined>(undefined);
@@ -133,6 +134,7 @@ export const CanvasController = (props: CanvasControllerProps): JSX.Element => {
       <Canvas
         design={design}
         mode={mode}
+        assets={assets}
         selectedAssetIndex={selectedAssetIndex}
         onAssetClick={handleAssetClick}
         onBackgroundClick={handleBackgroundClick}

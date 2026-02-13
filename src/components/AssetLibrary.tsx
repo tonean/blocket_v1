@@ -72,6 +72,30 @@ export const AssetLibrary = (props: AssetLibraryProps): JSX.Element => {
         Decorations
       </button>
       <button
+        appearance={selectedCategory === AssetCategory.FURNITURE ? 'primary' : 'secondary'}
+        onPress={() => onCategoryFilter(AssetCategory.FURNITURE)}
+      >
+        Furniture
+      </button>
+      <button
+        appearance={selectedCategory === AssetCategory.ELECTRONICS ? 'primary' : 'secondary'}
+        onPress={() => onCategoryFilter(AssetCategory.ELECTRONICS)}
+      >
+        Electronics
+      </button>
+      <button
+        appearance={selectedCategory === AssetCategory.LIGHTING ? 'primary' : 'secondary'}
+        onPress={() => onCategoryFilter(AssetCategory.LIGHTING)}
+      >
+        Lighting
+      </button>
+      <button
+        appearance={selectedCategory === AssetCategory.PEOPLE ? 'primary' : 'secondary'}
+        onPress={() => onCategoryFilter(AssetCategory.PEOPLE)}
+      >
+        People
+      </button>
+      <button
         appearance={selectedCategory === AssetCategory.RUG ? 'primary' : 'secondary'}
         onPress={() => onCategoryFilter(AssetCategory.RUG)}
       >

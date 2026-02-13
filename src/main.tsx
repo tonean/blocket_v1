@@ -64,7 +64,7 @@ Devvit.addCustomPostType({
     // Initialize services and managers
     const storage = new StorageService(context.redis);
     const authService = new AuthService(context);
-    const assetManager = new AssetManager();
+    const assetManager = new AssetManager(context);
     const designManager = new DesignManager();
     const themeManager = new ThemeManager(storage, context);
     const submissionHandler = new SubmissionHandler(storage, authService);

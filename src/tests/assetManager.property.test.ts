@@ -22,39 +22,63 @@ describe('AssetManager Property Tests', () => {
     fc.assert(
       fc.property(
         fc.constantFrom(
+          'backpack_1.png',
+          'backpack_2.png',
+          'book.PNG',
           'bookshelf_1.png',
           'bookshelf_2.png',
           'bookshelf_3.png',
+          'calendar.PNG',
           'chair_1.png',
           'chair_2.png',
           'chair_3.PNG',
           'chair_4.PNG',
           'chair_5.PNG',
+          'chalkboard.PNG',
           'clock.png',
+          'coffee_machine.PNG',
+          'cube.PNG',
+          'cube_2.PNG',
           'cup.png',
+          'curtain_1.png',
           'desk.png',
+          'desk_2.PNG',
           'lamp.png',
           'laptop.png',
+          'light_switch.PNG',
           'mouse.png',
+          'plant.png',
+          'plant_1.PNG',
+          'plant_2.PNG',
+          'plant_3.PNG',
+          'plant_4.PNG',
+          'plant_5.PNG',
+          'plant_6.PNG',
+          'plant_7.PNG',
+          'plant_8.PNG',
+          'poster_1.PNG',
+          'printer.PNG',
           'rug_1.png',
           'rug_2.png',
           'rug_3.png',
-          'trash.png'
+          'shelf_1.PNG',
+          'student_1.png',
+          'student_2.png',
+          'teacher.png',
+          'to_do.PNG',
+          'trash.png',
+          'trashcan.PNG'
         ),
         (filename) => {
-          // Load assets to ensure they're categorized
           const assets = assetManager.getAllAssets();
           const asset = assets.find((a) => a.imageUrl.includes(filename));
 
-          // Asset should exist
           expect(asset).toBeDefined();
           if (!asset) return false;
 
-          // Asset should have exactly one valid category
           const validCategories = Object.values(AssetCategory);
           const hasValidCategory = validCategories.includes(asset.category);
 
-          // Verify categorization logic based on filename
           const lowerFilename = filename.toLowerCase();
           let expectedCategory: AssetCategory;
 
@@ -64,6 +88,28 @@ describe('AssetManager Property Tests', () => {
             expectedCategory = AssetCategory.CHAIR;
           } else if (lowerFilename.startsWith('rug')) {
             expectedCategory = AssetCategory.RUG;
+          } else if (
+            lowerFilename.startsWith('desk') ||
+            lowerFilename.startsWith('shelf') ||
+            lowerFilename.startsWith('curtain') ||
+            lowerFilename.startsWith('chalkboard')
+          ) {
+            expectedCategory = AssetCategory.FURNITURE;
+          } else if (
+            lowerFilename.startsWith('laptop') ||
+            lowerFilename.startsWith('mouse') ||
+            lowerFilename.startsWith('coffee_machine') ||
+            lowerFilename.startsWith('printer') ||
+            lowerFilename.startsWith('light_switch')
+          ) {
+            expectedCategory = AssetCategory.ELECTRONICS;
+          } else if (lowerFilename.startsWith('lamp')) {
+            expectedCategory = AssetCategory.LIGHTING;
+          } else if (
+            lowerFilename.startsWith('student') ||
+            lowerFilename.startsWith('teacher')
+          ) {
+            expectedCategory = AssetCategory.PEOPLE;
           } else {
             expectedCategory = AssetCategory.DECORATION;
           }

@@ -4,11 +4,12 @@
  */
 
 import { Devvit } from '@devvit/public-api';
-import { Design, PlacedAsset } from '../types/models.js';
+import { Design, PlacedAsset, Asset } from '../types/models.js';
 
 export interface MobileCanvasProps {
   design: Design;
   mode: 'edit' | 'preview';
+  assets?: Asset[];
   selectedAssetIndex?: number;
   onAssetClick?: (assetIndex: number) => void;
   onBackgroundTap?: (x: number, y: number) => void;
@@ -24,6 +25,7 @@ export const MobileCanvas = (props: MobileCanvasProps): JSX.Element => {
   const {
     design,
     mode,
+    assets = [],
     selectedAssetIndex,
     onAssetClick,
     onBackgroundTap,
@@ -39,7 +41,11 @@ export const MobileCanvas = (props: MobileCanvasProps): JSX.Element => {
 
   // Render a single asset with touch-friendly controls
   const renderAsset = (placedAsset: PlacedAsset, originalIndex: number, isSelected: boolean) => {
-    const assetImageUrl = `assets/${placedAsset.assetId}.png`;
+    // Find the asset to get its URL and dimensions (scale down for mobile)
+    const asset = assets.find(a => a.id === placedAsset.assetId);
+    const assetImageUrl = asset?.imageUrl || `${placedAsset.assetId}.png`;
+    const width = asset ? Math.round(asset.width * 0.7) : 84; // 70% of desktop size
+    const height = asset ? Math.round(asset.height * 0.7) : 84;
 
     return (
       <vstack
@@ -50,8 +56,8 @@ export const MobileCanvas = (props: MobileCanvasProps): JSX.Element => {
       >
         <image
           url={assetImageUrl}
-          imageWidth={80}
-          imageHeight={80}
+          imageWidth={width}
+          imageHeight={height}
           description={`Asset ${placedAsset.assetId}`}
         />
         {isSelected && mode === 'edit' && (

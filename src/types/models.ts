@@ -6,6 +6,10 @@ export enum AssetCategory {
   BOOKSHELF = 'bookshelf',
   CHAIR = 'chair',
   DECORATION = 'decoration',
+  ELECTRONICS = 'electronics',
+  FURNITURE = 'furniture',
+  LIGHTING = 'lighting',
+  PEOPLE = 'people',
   RUG = 'rug'
 }
 

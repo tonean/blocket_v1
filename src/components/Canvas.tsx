@@ -4,12 +4,13 @@
  */
 
 import { Devvit } from '@devvit/public-api';
-import { Design, PlacedAsset, Theme } from '../types/models.js';
+import { Design, PlacedAsset, Theme, Asset } from '../types/models.js';
 import { ThemeDisplay } from './ThemeDisplay.js';
 
 export interface CanvasProps {
   design: Design;
   mode: 'edit' | 'preview';
+  assets?: Asset[];
   theme?: Theme | null;
   timeRemaining?: number;
   selectedAssetIndex?: number;
@@ -34,6 +35,7 @@ export const Canvas = (props: CanvasProps): JSX.Element => {
   const {
     design,
     mode,
+    assets = [],
     theme,
     timeRemaining = 0,
     selectedAssetIndex,
@@ -60,7 +62,11 @@ export const Canvas = (props: CanvasProps): JSX.Element => {
 
   // Render a single asset with optional selection indicator and controls
   const renderAsset = (placedAsset: PlacedAsset, originalIndex: number, isSelected: boolean) => {
-    const assetImageUrl = `assets/${placedAsset.assetId}.png`;
+    // Find the asset to get its URL and dimensions
+    const asset = assets.find(a => a.id === placedAsset.assetId);
+    const assetImageUrl = asset?.imageUrl || `${placedAsset.assetId}.png`;
+    const width = asset?.width || 120;
+    const height = asset?.height || 120;
 
     return (
       <vstack
@@ -70,8 +76,8 @@ export const Canvas = (props: CanvasProps): JSX.Element => {
       >
         <image
           url={assetImageUrl}
-          imageWidth={100}
-          imageHeight={100}
+          imageWidth={width}
+          imageHeight={height}
           description={`Asset ${placedAsset.assetId}`}
         />
         {isSelected && mode === 'edit' && (

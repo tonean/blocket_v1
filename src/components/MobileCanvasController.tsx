@@ -4,12 +4,13 @@
  */
 
 import { Devvit, useState } from '@devvit/public-api';
-import { Design } from '../types/models.js';
+import { Design, Asset } from '../types/models.js';
 import { MobileCanvas } from './MobileCanvas.js';
 
 export interface MobileCanvasControllerProps {
   design: Design;
   mode: 'edit' | 'preview';
+  assets?: Asset[];
   onDesignUpdate: (design: Design) => void;
   onAssetPlace?: (assetId: string) => void;
 }
@@ -18,7 +19,7 @@ export interface MobileCanvasControllerProps {
  * MobileCanvasController component that manages mobile touch interactions
  */
 export const MobileCanvasController = (props: MobileCanvasControllerProps): JSX.Element => {
-  const { design, mode, onDesignUpdate, onAssetPlace } = props;
+  const { design, mode, assets, onDesignUpdate, onAssetPlace } = props;
 
   // Track selected asset
   const [selectedAssetIndex, setSelectedAssetIndex] = useState<number | undefined>(undefined);
@@ -114,6 +115,7 @@ export const MobileCanvasController = (props: MobileCanvasControllerProps): JSX.
     <MobileCanvas
       design={design}
       mode={mode}
+      assets={assets}
       selectedAssetIndex={selectedAssetIndex}
       onAssetClick={handleAssetClick}
       onBackgroundTap={handleBackgroundTap}

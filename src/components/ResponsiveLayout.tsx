@@ -61,6 +61,7 @@ export const ResponsiveLayout = (props: ResponsiveLayoutProps): JSX.Element => {
               <CanvasController
                 design={design}
                 mode={mode}
+                assets={assets}
                 onDesignUpdate={onDesignUpdate}
                 onSubmit={onSubmit}
                 isSubmitted={isSubmitted}
@@ -90,6 +91,7 @@ export const ResponsiveLayout = (props: ResponsiveLayoutProps): JSX.Element => {
             <CanvasController
               design={design}
               mode={mode}
+              assets={assets}
               onDesignUpdate={onDesignUpdate}
               onSubmit={onSubmit}
               isSubmitted={isSubmitted}
@@ -111,6 +113,7 @@ export const ResponsiveLayout = (props: ResponsiveLayoutProps): JSX.Element => {
             <MobileCanvasController
               design={design}
               mode={mode}
+              assets={assets}
               onDesignUpdate={onDesignUpdate}
             />
           </vstack>
